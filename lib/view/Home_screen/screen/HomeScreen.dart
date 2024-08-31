@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kalbas_mechine_test/controller/bloc/newsdata_bloc.dart';
+import 'package:kalbas_mechine_test/model/news_model.dart';
+import 'package:kalbas_mechine_test/utils/resources/constands.dart';
 import 'package:kalbas_mechine_test/view/Home_screen/widgets/maintile.dart';
 import 'package:kalbas_mechine_test/view/Home_screen/widgets/slidable.dart';
 import 'package:kalbas_mechine_test/view/description/screen/description.dart';
 
+class NewsScreenWrpper extends StatelessWidget {
+  const NewsScreenWrpper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => NewsdataBloc(),
+      child: const NewsScreen(),
+    );
+  }
+}
+
 class NewsScreen extends StatefulWidget {
-  const NewsScreen({Key? key}) : super(key: key);
+  const NewsScreen({super.key});
 
   @override
   _NewsScreenState createState() => _NewsScreenState();
@@ -17,6 +33,7 @@ class _NewsScreenState extends State<NewsScreen>
   @override
   void initState() {
     super.initState();
+    BlocProvider.of<NewsdataBloc>(context).add(NewsfetchEvent());
     _tabController = TabController(length: 2, vsync: this);
   }
 
@@ -25,6 +42,8 @@ class _NewsScreenState extends State<NewsScreen>
     _tabController.dispose();
     super.dispose();
   }
+
+  late Newsfetch fetchdatas;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +55,7 @@ class _NewsScreenState extends State<NewsScreen>
           dividerColor: Colors.transparent,
           controller: _tabController,
           indicator: const BoxDecoration(
-              color: Color.fromARGB(255, 226, 233, 247),
+              color: Constants.lightblue,
               borderRadius: BorderRadius.all(Radius.circular(7))),
           tabs: const [
             Tab(
@@ -62,7 +81,7 @@ class _NewsScreenState extends State<NewsScreen>
                   Icon(
                     Icons.favorite,
                     size: 30,
-                    color: Colors.red,
+                    color: Constants.red,
                   ),
                   SizedBox(width: 12.0), // Space between icon and text
                   Text(
@@ -89,22 +108,51 @@ class _NewsScreenState extends State<NewsScreen>
   Widget _buildNewsList() {
     return Padding(
       padding: const EdgeInsets.all(6.0),
-      child: ListView.separated(
-        padding: const EdgeInsets.all(8.0),
-        itemCount: 5, // Sample count
-        itemBuilder: (context, index) {
-          return MySlidableCard(
-              index: index,
-              child: InkWell(
-                  onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => DescriptionScreen()));
-                  },
-                  child: MainTile()));
+      child: BlocBuilder<NewsdataBloc, NewsdataState>(
+        builder: (context, state) {
+          if (state is Loading) {
+            return const CircularProgressIndicator();
+          } else if (state is SuccessFetching) {
+            fetchdatas = state.newsdata;
+
+            return ListView.separated(
+              padding: const EdgeInsets.all(8.0),
+              itemCount: fetchdatas.totalResults, // Sample count
+              itemBuilder: (context, index) {
+                return MySlidableCard(
+                    index: index,
+                    child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => DescriptionScreen(
+                                        title: fetchdatas.articles[index].title,
+                                        content:
+                                            fetchdatas.articles[index].content,
+                                        publishedAt: fetchdatas
+                                            .articles[index].publishedAt,
+                                        image: fetchdatas
+                                                .articles[index].urlToImage ??
+                                            "https://techdenbd.com/backend/img/placeholder_image/Wyov47ZqxJID67GksbXO.gif",
+                                      )));
+                        },
+                        child: MainTile(
+                          title: fetchdatas.articles[index].title,
+                          description: fetchdatas.articles[index].description,
+                          publishedAt: fetchdatas.articles[index].publishedAt,
+                          image: fetchdatas.articles[index].urlToImage ??
+                              "https://techdenbd.com/backend/img/placeholder_image/Wyov47ZqxJID67GksbXO.gif",
+                        )));
+              },
+              separatorBuilder: (BuildContext context, int index) =>
+                  const SizedBox(
+                height: 10,
+              ),
+            );
+          }
+          return Container();
         },
-        separatorBuilder: (BuildContext context, int index) => SizedBox(
-          height: 10,
-        ),
       ),
     );
   }
@@ -117,9 +165,15 @@ class _NewsScreenState extends State<NewsScreen>
         padding: const EdgeInsets.all(8.0),
         itemCount: 3, // Sample count
         itemBuilder: (context, index) {
-          return MainTile();
+          return const MainTile(
+            title: '',
+            description: '',
+            publishedAt: '',
+            image:
+                "https://lightwidget.com/wp-content/uploads/localhost-file-not-found.jpg",
+          );
         },
-        separatorBuilder: (BuildContext context, int index) => SizedBox(
+        separatorBuilder: (BuildContext context, int index) => const SizedBox(
           height: 10,
         ),
       ),

@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:kalbas_mechine_test/utils/resources/constands.dart';
 
 class MainTile extends StatelessWidget {
   const MainTile({
     super.key,
+    required this.title,
+    required this.description,
+    required this.publishedAt,
+    required this.image,
   });
-
+  final String title;
+  final String description;
+  final String publishedAt;
+  final String image;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -21,38 +29,39 @@ class MainTile extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
               child: Image.network(
-                'https://via.placeholder.com/160', // Placeholder image
+                image, // Placeholder image
                 width: 84.0, // Adjust the width as needed
                 height: 84.0, // Adjust the height as needed
                 fit: BoxFit.cover,
               ),
             ),
             const SizedBox(width: 12.0), // Space between image and text
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Purus suspendisse adipiscing quam.',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    maxLines: 2,
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   // SizedBox(height: 4.0),
                   Text(
-                    'At leo tellus ornareornareornareornareornare ornare adipiscing pharetra nisi ornare.',
+                    description,
                     maxLines: 2, // Limiting the text to 2 lines
                     overflow: TextOverflow.ellipsis, // Ellipsis if overflow
                   ),
-                  SizedBox(height: 2.0),
+                  const SizedBox(height: 2.0),
                   Row(
                     children: [
-                      Icon(Icons.calendar_today,
-                          size: 16.0, color: Colors.grey),
-                      SizedBox(width: 4.0),
+                      const Icon(Icons.calendar_today,
+                          size: 16.0, color: Constants.grey),
+                      const SizedBox(width: 4.0),
                       Text(
-                        'Mon, 21 Dec 2020 14:57 GMT',
-                        style: TextStyle(
+                        publishedAt,
+                        style: const TextStyle(
                             fontSize: 11.0,
-                            color: Color.fromARGB(255, 169, 167, 167)),
+                            color: Constants.grey),
                       ),
                     ],
                   ),
