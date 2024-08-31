@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kalbas_mechine_test/Home_screen/widgets/maintile.dart';
+import 'package:kalbas_mechine_test/view/Home_screen/widgets/maintile.dart';
+import 'package:kalbas_mechine_test/view/Home_screen/widgets/slidable.dart';
+import 'package:kalbas_mechine_test/view/description/screen/description.dart';
 
 class NewsScreen extends StatefulWidget {
   const NewsScreen({Key? key}) : super(key: key);
@@ -85,51 +87,42 @@ class _NewsScreenState extends State<NewsScreen>
 
   // Build News List
   Widget _buildNewsList() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(8.0),
-      itemCount: 5, // Sample count
-      itemBuilder: (context, index) {
-        return
-         Dismissible(
-            background: Container(
-              decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 250, 202, 200),
-                  borderRadius: BorderRadius.all(Radius.circular(10))),
-              margin:
-                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10),
-              alignment: Alignment.topRight,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.favorite, color: Colors.red),
-                  SizedBox(width: 8.0),
-                  Text(
-                    textAlign: TextAlign.center,
-                    'Add to \n Favorites',
-                    maxLines: 2,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            key: ValueKey(index),
-            direction: DismissDirection.endToStart,
-            child: MainTile());
-      },
+    return Padding(
+      padding: const EdgeInsets.all(6.0),
+      child: ListView.separated(
+        padding: const EdgeInsets.all(8.0),
+        itemCount: 5, // Sample count
+        itemBuilder: (context, index) {
+          return MySlidableCard(
+              index: index,
+              child: InkWell(
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => DescriptionScreen()));
+                  },
+                  child: MainTile()));
+        },
+        separatorBuilder: (BuildContext context, int index) => SizedBox(
+          height: 10,
+        ),
+      ),
     );
   }
 
   // Build Favorites List
   Widget _buildFavoritesList() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(8.0),
-      itemCount: 3, // Sample count
-      itemBuilder: (context, index) {
-        return MainTile();
-      },
+    return Padding(
+      padding: const EdgeInsets.all(6.0),
+      child: ListView.separated(
+        padding: const EdgeInsets.all(8.0),
+        itemCount: 3, // Sample count
+        itemBuilder: (context, index) {
+          return MainTile();
+        },
+        separatorBuilder: (BuildContext context, int index) => SizedBox(
+          height: 10,
+        ),
+      ),
     );
   }
 }

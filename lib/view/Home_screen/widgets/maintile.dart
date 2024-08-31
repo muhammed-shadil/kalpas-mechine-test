@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class MainTile extends StatelessWidget {
@@ -9,13 +8,14 @@ class MainTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10),
+      // margin: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10),
       elevation: 7.0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(left: 18.0,top:12,bottom: 12,right:14 ),
+        padding:
+            const EdgeInsets.only(left: 18.0, top: 12, bottom: 12, right: 14),
         child: Row(
           children: [
             ClipRRect(
@@ -50,7 +50,9 @@ class MainTile extends StatelessWidget {
                       SizedBox(width: 4.0),
                       Text(
                         'Mon, 21 Dec 2020 14:57 GMT',
-                        style: TextStyle(fontSize: 11.0,color: Color.fromARGB(255, 169, 167, 167)),
+                        style: TextStyle(
+                            fontSize: 11.0,
+                            color: Color.fromARGB(255, 169, 167, 167)),
                       ),
                     ],
                   ),
