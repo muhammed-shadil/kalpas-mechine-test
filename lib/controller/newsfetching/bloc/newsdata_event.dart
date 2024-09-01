@@ -4,3 +4,4 @@ part of 'newsdata_bloc.dart';
 sealed class NewsdataEvent {}
 
 final class NewsfetchEvent extends NewsdataEvent {}
+

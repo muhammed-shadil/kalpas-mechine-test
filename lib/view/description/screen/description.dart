@@ -76,9 +76,7 @@ class DescriptionScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
+                Constants.height20,
                 Text(content)
               ],
             ),

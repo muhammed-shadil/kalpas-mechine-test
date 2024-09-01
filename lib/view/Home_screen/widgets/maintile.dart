@@ -16,7 +16,6 @@ class MainTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      // margin: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10),
       elevation: 7.0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
@@ -35,7 +34,7 @@ class MainTile extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(width: 12.0), // Space between image and text
+            Constants.width12, // Space between image and text
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,23 +44,23 @@ class MainTile extends StatelessWidget {
                     title,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  // SizedBox(height: 4.0),
                   Text(
                     description,
-                    maxLines: 2, // Limiting the text to 2 lines
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis, // Ellipsis if overflow
                   ),
-                  const SizedBox(height: 2.0),
+                  Constants.height2,
                   Row(
                     children: [
                       const Icon(Icons.calendar_today,
                           size: 16.0, color: Constants.grey),
-                      const SizedBox(width: 4.0),
+                      Constants.width4,
                       Text(
                         publishedAt,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                            fontSize: 11.0,
-                            color: Constants.grey),
+                            fontSize: 11.0, color: Constants.grey),
                       ),
                     ],
                   ),

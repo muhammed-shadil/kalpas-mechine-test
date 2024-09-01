@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kalbas_mechine_test/controller/bloc/newsdata_bloc.dart';
+import 'package:kalbas_mechine_test/controller/favorite_list/bloc/favorte_list_bloc.dart';
+import 'package:kalbas_mechine_test/controller/newsfetching/bloc/newsdata_bloc.dart';
 import 'package:kalbas_mechine_test/model/news_model.dart';
 import 'package:kalbas_mechine_test/utils/resources/constands.dart';
 import 'package:kalbas_mechine_test/view/Home_screen/widgets/maintile.dart';
+import 'package:kalbas_mechine_test/view/Home_screen/widgets/shimmer.dart';
 import 'package:kalbas_mechine_test/view/Home_screen/widgets/slidable.dart';
 import 'package:kalbas_mechine_test/view/description/screen/description.dart';
 
@@ -12,8 +14,15 @@ class NewsScreenWrpper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => NewsdataBloc(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => NewsdataBloc(),
+        ),
+        BlocProvider(
+          create: (context) => FavorteListBloc(),
+        ),
+      ],
       child: const NewsScreen(),
     );
   }
@@ -66,7 +75,7 @@ class _NewsScreenState extends State<NewsScreen>
                     Icons.menu_rounded,
                     size: 30,
                   ),
-                  SizedBox(width: 8.0), // Space between icon and text
+                  Constants.width8, // Space between icon and text
                   Text(
                     'News',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23),
@@ -83,7 +92,7 @@ class _NewsScreenState extends State<NewsScreen>
                     size: 30,
                     color: Constants.red,
                   ),
-                  SizedBox(width: 12.0), // Space between icon and text
+                  Constants.width12,
                   Text(
                     'Favs',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23),
@@ -111,45 +120,57 @@ class _NewsScreenState extends State<NewsScreen>
       child: BlocBuilder<NewsdataBloc, NewsdataState>(
         builder: (context, state) {
           if (state is Loading) {
-            return const CircularProgressIndicator();
+            return const ShimmerLoading();
+          } else if (state is FaildFetching) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+              ),
+            );
           } else if (state is SuccessFetching) {
             fetchdatas = state.newsdata;
 
             return ListView.separated(
-              padding: const EdgeInsets.all(8.0),
-              itemCount: fetchdatas.totalResults, // Sample count
-              itemBuilder: (context, index) {
-                return MySlidableCard(
-                    index: index,
-                    child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => DescriptionScreen(
-                                        title: fetchdatas.articles[index].title,
-                                        content:
-                                            fetchdatas.articles[index].content,
-                                        publishedAt: fetchdatas
-                                            .articles[index].publishedAt,
-                                        image: fetchdatas
-                                                .articles[index].urlToImage ??
-                                            "https://techdenbd.com/backend/img/placeholder_image/Wyov47ZqxJID67GksbXO.gif",
-                                      )));
-                        },
-                        child: MainTile(
-                          title: fetchdatas.articles[index].title,
-                          description: fetchdatas.articles[index].description,
-                          publishedAt: fetchdatas.articles[index].publishedAt,
-                          image: fetchdatas.articles[index].urlToImage ??
-                              "https://techdenbd.com/backend/img/placeholder_image/Wyov47ZqxJID67GksbXO.gif",
-                        )));
-              },
-              separatorBuilder: (BuildContext context, int index) =>
-                  const SizedBox(
-                height: 10,
-              ),
-            );
+                padding: const EdgeInsets.all(8.0),
+                itemCount: fetchdatas.totalResults, // Sample count
+                itemBuilder: (context, index) {
+                  bool isfavorite = false;
+                  return MySlidableCard(
+                      onPressed: (_) {
+                        isfavorite = !isfavorite;
+                        BlocProvider.of<FavorteListBloc>(context).add(
+                            FavoriteEvent(
+                                data: fetchdatas.articles[index],
+                                isfavorite: isfavorite));
+                      },
+                      index: index,
+                      child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => DescriptionScreen(
+                                          title:
+                                              fetchdatas.articles[index].title,
+                                          content: fetchdatas
+                                              .articles[index].content,
+                                          publishedAt: fetchdatas
+                                              .articles[index].publishedAt,
+                                          image: fetchdatas
+                                                  .articles[index].urlToImage ??
+                                              Constants.notFoundImage,
+                                        )));
+                          },
+                          child: MainTile(
+                            title: fetchdatas.articles[index].title,
+                            description: fetchdatas.articles[index].description,
+                            publishedAt: fetchdatas.articles[index].publishedAt,
+                            image: fetchdatas.articles[index].urlToImage ??
+                                Constants.notFoundImage,
+                          )));
+                },
+                separatorBuilder: (BuildContext context, int index) =>
+                    Constants.height10);
           }
           return Container();
         },
@@ -161,21 +182,36 @@ class _NewsScreenState extends State<NewsScreen>
   Widget _buildFavoritesList() {
     return Padding(
       padding: const EdgeInsets.all(6.0),
-      child: ListView.separated(
-        padding: const EdgeInsets.all(8.0),
-        itemCount: 3, // Sample count
-        itemBuilder: (context, index) {
-          return const MainTile(
-            title: '',
-            description: '',
-            publishedAt: '',
-            image:
-                "https://lightwidget.com/wp-content/uploads/localhost-file-not-found.jpg",
+      child: BlocBuilder<FavorteListBloc, FavorteListState>(
+        builder: (context, state) {
+          if (state is Loading) {
+            return const CircularProgressIndicator();
+          } else if (state is Favoritestate) {
+            final favorites = state.data;
+            if (favorites.isEmpty) {
+              return const Center(child: Text('No favorites added yet.'));
+            }
+            return ListView.separated(
+                padding: const EdgeInsets.all(8.0),
+                itemCount: favorites.length,
+                itemBuilder: (context, index) {
+                  return MainTile(
+                    title: favorites[index].title,
+                    description: favorites[index].description,
+                    publishedAt: favorites[index].publishedAt,
+                    image:
+                        favorites[index].urlToImage ?? Constants.notFoundImage,
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) =>
+                    Constants.height10);
+          }
+          return const Center(
+            child: SizedBox(
+              child: Text("Nothing in favorite list"),
+            ),
           );
         },
-        separatorBuilder: (BuildContext context, int index) => const SizedBox(
-          height: 10,
-        ),
       ),
     );
   }
